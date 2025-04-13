@@ -1,4 +1,3 @@
-// firebase-signup.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import {
   getAuth,
@@ -20,11 +19,8 @@ document.getElementById("signupForm").addEventListener("submit", (e) => {
   const password = document.getElementById("password").value.trim();
 
   createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // بعد النجاح انتقل إلى لوحة التحكم
-      window.location.href = "dashboard.html";
-    })
+    .then(() => window.location.href = "dashboard.html")
     .catch((error) => {
-      document.getElementById("error").textContent = "حدث خطأ: " + error.message;
+      document.getElementById("error").textContent = "خطأ: " + error.message;
     });
 });
