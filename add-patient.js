@@ -1,4 +1,3 @@
-// add-patient.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import {
   getAuth,
@@ -25,6 +24,7 @@ const form = document.getElementById("patientForm");
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "login.html";
+    return;
   }
 
   form.addEventListener("submit", async (e) => {
@@ -39,11 +39,5 @@ onAuthStateChanged(auth, (user) => {
         createdAt: new Date()
       });
 
-      // حفظ ID المريض للربط في الأسئلة
-      localStorage.setItem("patientId", docRef.id);
-      window.location.href = "questions.html";
-    } catch (error) {
-      alert("حدث خطأ أثناء الإضافة: " + error.message);
-    }
-  });
-});
+      // حفظ المريض لربطه بالاختبار
+      localStorage.setItem("
