@@ -1,69 +1,93 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import {
   getFirestore,
-  doc,
-  getDoc,
   collection,
-  getDocs
+  getDocs,
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDKSesdZluaV5uzJJTAZ0NdH6TqOGP-YCA",
   authDomain: "minnesota-279cc.firebaseapp.com",
-  projectId: "minnesota-279cc",
+  projectId: "minnesota-279cc"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
-const urlParams = new URLSearchParams(window.location.search);
-const patientId = urlParams.get("id");
+const patientId = localStorage.getItem("patientId");
+const userId = localStorage.getItem("userId");
+const resultContainer = document.getElementById("results");
 
-const patientName = document.getElementById("patientName");
-const patientAge = document.getElementById("patientAge");
-const resultSection = document.getElementById("resultSection");
+let latestResults = [];
+let latestResultDocId = "";
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user || !patientId) {
-    window.location.href = "login.html";
+async function fetchResults() {
+  const resultsRef = collection(db, `psychologists/${userId}/patients/${patientId}/results`);
+  const snapshot = await getDocs(resultsRef);
+  let lastResult = null;
+
+  snapshot.forEach(docSnap => {
+    lastResult = docSnap.data();
+    latestResultDocId = docSnap.id;
+  });
+
+  if (lastResult && lastResult.results) {
+    latestResults = lastResult.results;
+    lastResult.results.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "col-md-4";
+      card.innerHTML = `
+        <div class="card shadow">
+          <div class="card-body">
+            <h5 class="card-title">${item.name}</h5>
+            <p class="card-text">الدرجة: <strong>${item.score}</strong></p>
+          </div>
+        </div>
+      `;
+      resultContainer.appendChild(card);
+    });
+  } else {
+    resultContainer.innerHTML = "<p class='text-muted'>لا توجد نتائج مسجلة حتى الآن.</p>";
+  }
+}
+
+document.getElementById("saveNote").addEventListener("click", async () => {
+  const noteText = document.getElementById("notes").value.trim();
+  if (!noteText) {
+    alert("⚠️ الرجاء كتابة ملاحظة أولاً.");
     return;
   }
 
-  const patientRef = doc(db, `psychologists/${user.uid}/patients/${patientId}`);
-  const patientSnap = await getDoc(patientRef);
-
-  if (!patientSnap.exists()) {
-    patientName.textContent = "❌ المريض غير موجود.";
-    return;
+  try {
+    const resultRef = doc(db, `psychologists/${userId}/patients/${patientId}/results/${latestResultDocId}`);
+    await updateDoc(resultRef, {
+      note: noteText
+    });
+    alert("✅ تم حفظ الملاحظة بنجاح.");
+  } catch (err) {
+    console.error(err);
+    alert("❌ حدث خطأ أثناء حفظ الملاحظة.");
   }
-
-  const data = patientSnap.data();
-  patientName.textContent = `👤 الاسم: ${data.name}`;
-  patientAge.textContent = `العمر: ${data.age}`;
-
-  const resultsSnap = await getDocs(collection(patientRef, "results"));
-  if (resultsSnap.empty) {
-    resultSection.innerHTML = "<p class='text-muted'>لا توجد نتائج حتى الآن.</p>";
-    return;
-  }
-
-  const resultDoc = resultsSnap.docs[resultsSnap.docs.length - 1];
-  const result = resultDoc.data();
-  const answers = result.answers;
-
-  const lieIndices = [15,30,45,60,75,90,105,120,135,150,165,195,225,255,285];
-  const lieScore = lieIndices.filter(i => answers[i] === "لا").length;
-
-  resultSection.innerHTML = `
-    <div class="col-md-6">
-      <div class="card p-3 bg-white shadow-sm">
-        <h6 class="mb-1">مقياس الكذب</h6>
-        <p class="mb-0">عدد "لا" على الأسئلة: <strong>${lieScore}</strong></p>
-      </div>
-    </div>`;
 });
+
+document.getElementById("sendWhatsApp").addEventListener("click", () => {
+  let message = "نتائج المريض:\\n";
+  latestResults.forEach(item => {
+    message += `• ${item.name}: ${item.score}\\n`;
+  });
+
+  const notes = document.getElementById("notes").value.trim();
+  if (notes) {
+    message += `\\nملاحظات الطبيب:\\n${notes}`;
+  }
+
+  const encodedMessage = encodeURIComponent(message);
+  const phone = prompt("📱 أدخل رقم واتساب لإرسال النتائج (مع مفتاح الدولة):");
+  if (phone) {
+    window.open(`https://wa.me/${phone}?text=${encodedMessage}`, "_blank");
+  }
+});
+
+fetchResults();
