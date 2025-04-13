@@ -41,6 +41,8 @@ onAuthStateChanged(auth, (user) => {
 
       // ✅ حفظ المريض في LocalStorage
       localStorage.setItem("patientId", docRef.id);
+localStorage.setItem("userName", name);
+localStorage.setItem("userAge", age);
 
       // ✅ الانتقال إلى صفحة الاختبار
       window.location.href = "questions.html";
