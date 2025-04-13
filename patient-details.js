@@ -1,4 +1,3 @@
-// patient-details.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import {
   getAuth,
@@ -39,7 +38,7 @@ onAuthStateChanged(auth, async (user) => {
   const patientSnap = await getDoc(patientRef);
 
   if (!patientSnap.exists()) {
-    patientName.textContent = "المريض غير موجود.";
+    patientName.textContent = "❌ المريض غير موجود.";
     return;
   }
 
@@ -47,20 +46,18 @@ onAuthStateChanged(auth, async (user) => {
   patientName.textContent = `👤 الاسم: ${data.name}`;
   patientAge.textContent = `العمر: ${data.age}`;
 
-  // جلب آخر نتيجة
   const resultsSnap = await getDocs(collection(patientRef, "results"));
   if (resultsSnap.empty) {
     resultSection.innerHTML = "<p class='text-muted'>لا توجد نتائج حتى الآن.</p>";
     return;
   }
 
-  const resultDoc = resultsSnap.docs[resultsSnap.docs.length - 1]; // آخر نتيجة
+  const resultDoc = resultsSnap.docs[resultsSnap.docs.length - 1];
   const result = resultDoc.data();
   const answers = result.answers;
 
-  // مثال فقط - مقياس الكذب
-  const lieScaleIndices = [15,30,45,60,75,90,105,120,135,150,165,195,225,255,285];
-  const lieScore = lieScaleIndices.filter(i => answers[i] === "لا").length;
+  const lieIndices = [15,30,45,60,75,90,105,120,135,150,165,195,225,255,285];
+  const lieScore = lieIndices.filter(i => answers[i] === "لا").length;
 
   resultSection.innerHTML = `
     <div class="col-md-6">
@@ -68,8 +65,5 @@ onAuthStateChanged(auth, async (user) => {
         <h6 class="mb-1">مقياس الكذب</h6>
         <p class="mb-0">عدد "لا" على الأسئلة: <strong>${lieScore}</strong></p>
       </div>
-    </div>
-  `;
-
-  // يمكنك تكرار هذا للقيم الأخرى مثل: الاكتئاب، القلق، التواتر، إلخ
+    </div>`;
 });
