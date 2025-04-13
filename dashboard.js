@@ -1,4 +1,3 @@
-// dashboard.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import {
   getAuth,
@@ -11,6 +10,7 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+// إعداد Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDKSesdZluaV5uzJJTAZ0NdH6TqOGP-YCA",
   authDomain: "minnesota-279cc.firebaseapp.com",
@@ -24,29 +24,31 @@ const db = getFirestore(app);
 const patientsList = document.getElementById("patientsList");
 const logoutBtn = document.getElementById("logoutBtn");
 
-// التأكد من تسجيل الدخول
+// التحقق من تسجيل الدخول
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const userId = user.uid;
-    const querySnapshot = await getDocs(collection(db, `psychologists/${userId}/patients`));
-    if (querySnapshot.empty) {
-      patientsList.innerHTML = "<p class='text-muted'>لا يوجد مرضى مضافين بعد.</p>";
-    } else {
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        patientsList.innerHTML += `
-          <div class="col-md-6">
-            <div class="card p-3">
-              <h5>${data.name}</h5>
-              <p>العمر: ${data.age}</p>
-              <a href="patient-details.html?id=${doc.id}" class="btn btn-outline-info btn-sm">عرض التفاصيل</a>
-            </div>
-          </div>`;
-      });
-    }
-  } else {
+  if (!user) {
     window.location.href = "login.html";
+    return;
   }
+
+  const userId = user.uid;
+  const querySnapshot = await getDocs(collection(db, `psychologists/${userId}/patients`));
+  if (querySnapshot.empty) {
+    patientsList.innerHTML = "<p class='text-muted'>لا يوجد مرضى مضافين بعد.</p>";
+    return;
+  }
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    patientsList.innerHTML += `
+      <div class="col-md-6">
+        <div class="card p-3">
+          <h5>${data.name}</h5>
+          <p>العمر: ${data.age}</p>
+          <a href="patient-details.html?id=${doc.id}" class="btn btn-outline-info btn-sm">عرض التفاصيل</a>
+        </div>
+      </div>`;
+  });
 });
 
 // تسجيل الخروج
