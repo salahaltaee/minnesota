@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>إنشاء حساب - الطبيب النفسي</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <script type="module" src="firebase-signup.js"></script>
+  <style>
+    body {
+      background: #eef1f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .card {
+      max-width: 400px;
+      width: 100%;
+      padding: 2rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+      border-radius: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h3 class="text-center mb-4">إنشاء حساب جديد</h3>
+    <form id="signupForm">
+      <div class="mb-3">
+        <label for="email" class="form-label">البريد الإلكتروني</label>
+        <input type="email" class="form-control" id="email" required />
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">كلمة المرور</label>
+        <input type="password" class="form-control" id="password" required />
+      </div>
+      <button type="submit" class="btn btn-success w-100">إنشاء الحساب</button>
+    </form>
+    <p class="text-center mt-3">لديك حساب؟ <a href="login.html">سجّل الدخول</a></p>
+    <div id="error" class="text-danger text-center mt-2"></div>
+  </div>
+</body>
+</html>
