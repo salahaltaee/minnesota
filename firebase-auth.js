@@ -1,4 +1,3 @@
-// firebase-auth.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import {
   getAuth,
@@ -14,18 +13,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// تسجيل الدخول
 document.getElementById("loginForm").addEventListener("submit", (e) => {
   e.preventDefault();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
 
   signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // الانتقال إلى لوحة التحكم
-      window.location.href = "dashboard.html";
-    })
+    .then(() => window.location.href = "dashboard.html")
     .catch((error) => {
-      document.getElementById("error").textContent = "خطأ في تسجيل الدخول: " + error.message;
+      document.getElementById("error").textContent = "خطأ: " + error.message;
     });
 });
