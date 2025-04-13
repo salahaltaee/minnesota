@@ -2,41 +2,100 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>النتائج</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>نتيجة الاختبار</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f7f7f7; }
+    .card { margin-top: 20px; }
+  </style>
 </head>
-<body class="bg-light p-4">
-  <div class="container">
-    <h2 class="text-center mb-4">نتيجة الاختبار</h2>
-    <div id="results" class="row g-3"></div>
+<body>
+  <div class="container my-5">
+    <h2 class="text-center mb-4">نتائج المقاييس النفسية</h2>
+    <div id="results" class="row g-4"></div>
   </div>
 
   <script>
-    const results = [
-      { name: "مقياس الكذب", count: 0 },
-      { name: "مقياس عدم التواتر (نعم)", count: 0 },
-      { name: "مقياس عدم التواتر (لا)", count: 0 },
-      { name: "مقياس التصحيح K", count: 0 },
-      { name: "مقياس توهم المرض Hs", count: 0 },
-      { name: "مقياس الاكتئاب D", count: 0 },
-      { name: "مقياس الهستيريا Hy", count: 0 },
-      { name: "مقياس الانحراف السيكوباثي Pd", count: 0 },
-      { name: "مقياس الذكورة Mf", count: 0 },
-      { name: "مقياس الأنوثة Mf", count: 0 },
-      { name: "مقياس البارانويا Pa", count: 0 },
-      { name: "مقياس السيكاثينيا Pt", count: 0 }
+    const allAnswers = JSON.parse(localStorage.getItem("answers") || "[]");
+    const results = [];
+
+    function countAnswers(indices, expected = "نعم") {
+      return indices.reduce((sum, idx) => {
+        return allAnswers[idx - 1] === expected ? sum + 1 : sum;
+      }, 0);
+    }
+
+    const lieScale = [15,30,45,60,75,90,105,120,135,150,165,195,225,255,285];
+    const lieCount = countAnswers(lieScale, "لا");
+    let lieScore = 0;
+    if (lieCount <= 2) lieScore = 44;
+    else if (lieCount <= 5) lieScore = 52;
+    else if (lieCount <= 7) lieScore = 65;
+    else lieScore = 75;
+    results.push({ name: "مقياس الكذب", score: lieScore });
+
+    const fYes = [15,27,31,34,35,40,42,48,49,50,53,56,66,85,121,123,139,146,151,156,168,184,197,200,202,205,206,209,210,211,215,218,227,245,246,247,252,256,269,275,286,288,291,293];
+    const fNo  = [17,20,54,65,75,83,112,113,115,164,169,177,185,196,199,220,257,258,272,276];
+    const fScore = countAnswers(fYes, "نعم") + countAnswers(fNo, "لا");
+    results.push({ name: "مقياس عدم التواتر", score: fScore });
+
+    const scales = [
+      {
+        name: "مقياس التصحيح K",
+        yes: [96],
+        no: [30,39,71,89,124,129,34,138,142,148,160,170,171,180,183,217,234,267,272,296,316,322,368,374,382,383,392,397,398]
+      },
+      {
+        name: "مقياس توهم المرض Hs",
+        yes: [23,29,43,62,72,108,114,125,161,189,273],
+        no: [2,3,7,9,18,51,55,63,68,103,130,153,155,163,175,188,190,192,230,243,274,281]
+      },
+      {
+        name: "مقياس الاكتئاب D",
+        yes: [5,32,41,43,52,67,86,104,130,138,142,158,159,182,189,193,236,259,288,290],
+        no: [2,8,9,18,30,36,39,46,51,57,58,64,80,88,89,95,98,107,122,131,145,152,153,154,155,160,178,191,207,208,233,241,242,248,263,270,271,272,285,296]
+      },
+      {
+        name: "مقياس الهستيريا Hy",
+        yes: [10,23,32,43,44,47,76,114,179,186,189,238,253],
+        no: [2,3,6,7,8,9,12,26,30,51,55,71,89,93,103,107,109,124,128,129,136,137,141,147,153,160,162,163,170,172,174,175,180,188,190,192,201,213,230,234,243,265,267,274,279,289,292]
+      },
+      {
+        name: "مقياس الانحراف السيكوباثي Pd",
+        yes: [16,21,24,32,33,35,38,42,61,67,84,94,102,106,110,118,127,215,216,224,239,244,245,284],
+        no: [8,20,37,82,91,96,107,134,137,141,155,170,171,173,180,183,201,231,235,237,248,267,287,289,294,296]
+      },
+      {
+        name: "مقياس البارانويا Pa",
+        yes: [16,24,27,35,110,121,123,127,151,157,158,202,275,284,291,293,299,305,314,317,326,338,341,364,365],
+        no: [93,107,109,111,117,124,268,281,294,313,316,319,327,347,348]
+      },
+      {
+        name: "مقياس السيكاثينيا Pt",
+        yes: [10,15,22,32,41,67,76,86,94,102,106,142,159,182,189,217,238,266,301,304,321,336,337,340,342,343,344,346,349,351,352,356,357,358,359,360,361,362,366],
+        no: [3,8,26,122,152,164,178,329,353]
+      }
     ];
 
+    scales.forEach(scale => {
+      const score = countAnswers(scale.yes || [], "نعم") + countAnswers(scale.no || [], "لا");
+      results.push({ name: scale.name, score });
+    });
+
     const container = document.getElementById("results");
-    results.forEach(m => {
-      container.innerHTML += `
-        <div class="col-md-6">
-          <div class="card p-3 shadow-sm">
-            <h5>${m.name}</h5>
-            <p class="mb-0">عدد الإجابات المطابقة: <strong>${m.count}</strong></p>
+    results.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "col-md-4";
+      card.innerHTML = `
+        <div class="card shadow">
+          <div class="card-body">
+            <h5 class="card-title">${item.name}</h5>
+            <p class="card-text">الدرجة: <strong>${item.score}</strong></p>
           </div>
-        </div>`;
+        </div>
+      `;
+      container.appendChild(card);
     });
   </script>
 </body>
