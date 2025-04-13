@@ -39,5 +39,15 @@ onAuthStateChanged(auth, (user) => {
         createdAt: new Date()
       });
 
-      // حفظ المريض لربطه بالاختبار
-      localStorage.setItem("
+      // ✅ حفظ المريض في LocalStorage
+      localStorage.setItem("patientId", docRef.id);
+
+      // ✅ الانتقال إلى صفحة الاختبار
+      window.location.href = "questions.html";
+
+    } catch (error) {
+      console.error("خطأ في الإضافة:", error);
+      alert("فشل في إضافة المريض: " + error.message);
+    }
+  });
+});
