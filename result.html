@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -40,6 +41,12 @@
     const allAnswers = JSON.parse(localStorage.getItem("answers") || "[]");
     const patientId = localStorage.getItem("patientId");
     const userId = localStorage.getItem("userId");
+
+    if (!userId || !patientId) {
+      alert("⚠️ لم يتم العثور على بيانات المريض، سيتم توجيهك لإضافة المريض.");
+      window.location.href = "add-patient.html";
+    }
+
     const results = [];
 
     function countAnswers(indices, expected = "نعم") {
@@ -57,20 +64,7 @@
     else lieScore = 75;
     results.push({ name: "مقياس الكذب", score: lieScore });
 
-    const fYes = [15,27,31,34,35,40,42,48,49,50,53,56,66,85,121,123,139,146,151,156,168,184,197,200,202,205,206,209,210,211,215,218,227,245,246,247,252,256,269,275,286,288,291,293];
-    const fNo = [17,20,54,65,75,83,112,113,115,164,169,177,185,196,199,220,257,258,272,276];
-    const fScore = countAnswers(fYes, "نعم") + countAnswers(fNo, "لا");
-    results.push({ name: "مقياس عدم التواتر", score: fScore });
-
-    const kScore = countAnswers([96], "نعم") + countAnswers([30,39,71,89,124,129,34,138,142,148,160,170,171,180,183,217,234,267,272,296,316,322,368,374,382,383,392,397,398], "لا");
-    results.push({ name: "مقياس التصحيح K", score: kScore });
-
     async function saveResults() {
-      if (!userId || !patientId) {
-        alert("⚠️ لم يتم العثور على بيانات المريض.");
-        return;
-      }
-
       const patientRef = doc(db, `psychologists/${userId}/patients/${patientId}`);
       const patientSnap = await getDoc(patientRef);
       if (!patientSnap.exists()) {
